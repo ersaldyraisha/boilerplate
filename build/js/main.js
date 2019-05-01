@@ -1,0 +1,56 @@
+"use strict";
+
+(function () {
+  angular.module('FractionCalc', []).controller('CalcController', ['$scope', function ($scope) {
+    $scope.fractions = [100000, 50000, 20000, 10000, 5000, 1000, 500, 100, 50];
+    $scope.countedFractions = {};
+    $scope.input = '';
+
+    $scope.calculateFractions = function (input) {
+      var cleanInput = $scope.validateInput(input);
+
+      if (cleanInput) {
+        var remainder = cleanInput;
+        var countedFractions = {};
+        var sortedFractions = $scope.fractions.sort(function (a, b) {
+          return b - a;
+        });
+        sortedFractions.forEach(function (fraction) {
+          if (remainder >= fraction) {
+            countedFractions[fraction] = Math.floor(remainder / fraction);
+            remainder = remainder % fraction;
+          }
+        });
+
+        if (remainder > 0) {
+          countedFractions.remainder = remainder;
+        }
+
+        return countedFractions;
+      } else {
+        return false;
+      }
+    };
+
+    $scope.validateInput = function (input) {
+      var regex = /^(Rp|Rp )*(0)*([1-9]\d{0,2})((\.\d{3})*|([0-9]*))(,00)*$/;
+
+      if (regex.test(input)) {
+        return input.toString().split(',')[0].replace(/\D/g, '');
+      }
+
+      return false;
+    };
+
+    $scope.eventHandler = function () {
+      var countedFractions = $scope.calculateFractions($scope.input);
+
+      if (countedFractions) {
+        $scope.countedFractions = Object.assign(countedFractions);
+      } else {
+        $scope.countedFractions = {};
+        alert('Invalid input');
+      }
+    };
+  }]);
+})();
